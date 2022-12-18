@@ -1,0 +1,69 @@
+﻿@page "/face"
+@inject FaceService service
+@inject IJSRuntime IJS
+<h3>Face Page</h3>
+<p>Use this page to add new face to recognize</p>
+<CamCapture DataChanged="DataChanged"></CamCapture>
+<table id="gridData" name="gridData" class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nama</th>
+            <th>Date</th>
+            <th>Url 2</th>
+            <th>Url 1</th>
+            <th>Pic</th>
+            <th>Actions</th>
+        </tr>
+
+    </thead>
+    <tbody>
+        <Virtualize Items="@DataFace" Context="item">
+           <tr @key="@item.Id"> 
+                <td>@item.Nama</td>
+                <td>@item.CreatedDate.ToString("dd/MMM/yyyy")</td>
+                <td>@item.FileUrl2</td>
+                <td>@item.FileUrl</td>
+                <td><img src="@item.FileUrl" alt="img" /></td>
+                <td>                   
+                        <input type="button" class="btn btn-danger btn-sm mt-1" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                   
+
+                </td>
+
+            </tr>
+        </Virtualize>
+       
+    </tbody>
+</table>
+<ConfirmDialog OnClick="@Delete" />
+@code {
+    bool HasLogin;
+    string customHeader = string.Empty;
+    List<Face> DataFace;
+    Face itemObject = new Face();
+   
+    protected override async Task OnInitializedAsync()
+    {
+        DataFace = service.GetAllData();
+    }
+    private async void DataChanged()
+    {
+        DataFace = service.GetAllData();
+        StateHasChanged();
+    }
+
+    private void PrepareForDelete(Face item)
+    {
+        itemObject = item;
+    }
+   
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await IJS.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        DataFace = service.GetAllData();
+        itemObject = new Face() { Id = -1 };
+    }
+
+    
+}

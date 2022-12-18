@@ -1,0 +1,23 @@
+﻿@page "/"
+@inject IJSRuntime IJS
+@layout CleanLayout
+@inject FaceService FaceSvc
+<PageTitle>Index</PageTitle>
+
+<img src="images/keluarga.jpg" id="originalImg" />
+<canvas id="reflay" class="overlay"></canvas>
+
+<button class="btn btn-primary" @onclick="CallFaceRecognition">Face Recognition</button>
+
+@code{
+    List<FaceTemp> faces = new();
+
+    async Task CallFaceRecognition()
+    {
+        await IJS.InvokeVoidAsync("face",faces);
+    }
+    protected override void OnInitialized()
+    {
+        faces = FaceSvc.GetFaces();
+    }
+}

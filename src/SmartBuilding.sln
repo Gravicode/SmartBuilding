@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33027.239
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBuilding.FaceApp", "SmartBuilding.FaceApp\SmartBuilding.FaceApp.csproj", "{3636D292-684A-472C-8083-14F1EBB4DD9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBuilding.Tools", "SmartBuilding.Tools\SmartBuilding.Tools.csproj", "{0240A2E7-135B-4A6D-8C2D-BCCD59B395C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3636D292-684A-472C-8083-14F1EBB4DD9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3636D292-684A-472C-8083-14F1EBB4DD9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3636D292-684A-472C-8083-14F1EBB4DD9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3636D292-684A-472C-8083-14F1EBB4DD9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0240A2E7-135B-4A6D-8C2D-BCCD59B395C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0240A2E7-135B-4A6D-8C2D-BCCD59B395C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0240A2E7-135B-4A6D-8C2D-BCCD59B395C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0240A2E7-135B-4A6D-8C2D-BCCD59B395C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1A9172EA-99D1-4064-8EEA-2F81A623AD43}
+	EndGlobalSection
+EndGlobal
