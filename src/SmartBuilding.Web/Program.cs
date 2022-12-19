@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Web;
 using SmartBuilding.Web.Data;
 using System.Text;
 using SmartBuilding.Web.Helpers;
+using ServiceStack.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -41,6 +42,7 @@ builder.Services.AddTransient<DeviceService>();
 builder.Services.AddTransient<StreamRawDataService>();
 builder.Services.AddTransient<UserProfileService>();
 builder.Services.AddTransient<FaceService>();
+builder.Services.AddTransient<AccessBuildingService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -53,7 +55,7 @@ IConfiguration Configuration = configBuilder.Build();
 
 AppConstants.UploadUrlPrefix = Configuration["UploadUrlPrefix"];
 AppConstants.SQLConn = Configuration["ConnectionStrings:SqlConn"];
-AppConstants.RedisCon = Configuration["RedisCon"];
+AppConstants.RedisCon = Configuration["ConnectionStrings:RedisCon"];
 AppConstants.BlobConn = Configuration["ConnectionStrings:BlobConn"];
 AppConstants.GMapApiKey = Configuration["GmapKey"];
 
@@ -74,7 +76,7 @@ MailService.UseSendGrid = true;
 SmsService.UserKey = Configuration["SmsSettings:ZenzivaUserKey"];
 SmsService.PassKey = Configuration["SmsSettings:ZenzivaPassKey"];
 SmsService.TokenKey = Configuration["SmsSettings:TokenKey"];
-
+builder.Services.AddSingleton(new RedisManagerPool(AppConstants.RedisCon));
 
 
 builder.Services.AddSignalR(hubOptions =>

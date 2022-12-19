@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartBuilding.StreamHub", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartBuilding.Web", "SmartBuilding.Web\SmartBuilding.Web.csproj", "{2FCE4557-96B4-46CD-B4AF-29A2F5D7EEE3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartBuilding.CameraApp", "SmartBuilding.CameraApp\SmartBuilding.CameraApp.csproj", "{E09BB624-B94A-4E82-960E-7195B38C4C9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{2FCE4557-96B4-46CD-B4AF-29A2F5D7EEE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FCE4557-96B4-46CD-B4AF-29A2F5D7EEE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FCE4557-96B4-46CD-B4AF-29A2F5D7EEE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E09BB624-B94A-4E82-960E-7195B38C4C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E09BB624-B94A-4E82-960E-7195B38C4C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E09BB624-B94A-4E82-960E-7195B38C4C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E09BB624-B94A-4E82-960E-7195B38C4C9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{50AE5B1B-CF43-4890-8D78-C30C3AE30702} = {A5890265-AC60-496E-9CF4-6432E09A885C}
 		{350538C6-62A1-44EC-A0A1-57D93CA277B6} = {A5890265-AC60-496E-9CF4-6432E09A885C}
 		{2FCE4557-96B4-46CD-B4AF-29A2F5D7EEE3} = {1537C94A-26FD-4DB7-8F88-68733C987353}
+		{E09BB624-B94A-4E82-960E-7195B38C4C9F} = {6C4E0114-E1E5-42C5-8820-B82BAAE965F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1A9172EA-99D1-4064-8EEA-2F81A623AD43}

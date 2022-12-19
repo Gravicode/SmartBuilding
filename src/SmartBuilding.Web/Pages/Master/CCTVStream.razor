@@ -1,0 +1,113 @@
+﻿@page "/master/cctv-stream"
+
+@inject IJSRuntime IJS
+@using SmartBuilding.Web.Helpers
+@using SmartBuilding.Web.Data
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@using System.IO
+@inject FaceService FaceSvc
+@inject AccessBuildingService AccessSvc
+<PageTitle>CCTV Monitoring</PageTitle>
+<style>
+    #overlay, .overlay {
+        position: absolute;
+        top: 200;
+        left: 0;
+    }
+</style>
+<h1>CCTV Monitoring</h1>
+
+<p>Gunakan ini untuk monitoring CCTV People Counter.</p>
+
+
+<div class="row">
+    @{
+        var count = 1;
+    }
+    @if (CCTVUrls != null)
+    {
+
+        @foreach (var cctv in CCTVUrls)
+        {
+
+            <div class="col-lg-4">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">CCTV @(count)</h6>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">LIVE</h5>
+                        <img id="@($"originalImg{count}")" style="width: 320px; height: 240px;object-fit: cover;" src="@(cctv+"&rand="+rnd.Next(100))" alt="foto" />
+                        <canvas id="@($"reflay{count}")" class="overlay"></canvas>
+                        <p hidden> @(count++)</p>
+                    </div>
+                </div>
+
+            </div>
+        }
+
+    }
+    else
+    {
+        <p class="alert alert-info">Loading</p>
+    }
+
+</div>
+@code {
+    HttpClient client;
+    Random rnd = new Random(Environment.TickCount);
+    BlazorTimer timer;
+    string UserName;
+    bool HasLogin;
+    DateTime LastUpdate;
+    string[] CCTVUrls;
+    string[] CCTVItemUrls;
+    List<FaceTemp> faces = new();
+    protected override async Task OnInitializedAsync()
+    {
+        client = new();
+        CCTVUrls = new string[] { NavMgr.BaseUri + "api/cctv/getimage?key=cctv-1" };
+        CCTVItemUrls = new string[] { NavMgr.BaseUri + "api/cctv/getitem?key=cctv-1" };
+        timer = new BlazorTimer();
+        timer.SetTimer(3000);
+        timer.OnElapsed += () =>
+        {
+
+            InvokeAsync(async () =>
+            {
+                var item = await client.GetJsonAsync<CCTVImage>(CCTVItemUrls[0]);
+                if (item != null && item.CreatedDate != LastUpdate)
+                {
+                    LastUpdate = item.CreatedDate;
+                    // Update the UI
+                    StateHasChanged();
+                    await CallFaceRecognition();
+                }
+            });
+        };
+
+
+    }
+
+
+    async Task CallFaceRecognition()
+    {
+        var detected = await IJS.InvokeAsync<List<FaceTemp>>("detect_face", faces, "originalImg1", "reflay1");
+        if (detected != null && detected?.Count > 0)
+        {
+            foreach (var item in detected)
+            {
+                var newItem = new AccessBuilding() { CCTV = "cctv-1", CreatedDate = DateHelper.GetLocalTimeNow(), FileUrl = item.url, IsVerified = item.nama.Contains("unknown") ? false : true, Nama = item.nama };
+                var res = AccessSvc.InsertData(newItem);
+                if (res)
+                    toastService.ShowSuccess("face detected");
+            }
+        }
+    }
+    protected override void OnInitialized()
+    {
+        faces = FaceSvc.GetFaces();
+    }
+
+}

@@ -19,6 +19,7 @@ namespace SmartBuilding.Web.Data
             : base(options)
         {
         }
+        public DbSet<AccessBuilding> AccessBuildings { get; set; }
         public DbSet<Face> Faces { get; set; }
         public DbSet<Device> Devices { get; set; }
         public DbSet<Gateway> Gateways { get; set; }

@@ -1,0 +1,170 @@
+﻿@page "/master/AccessBuilding"
+
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavMgr
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+@using System.IO
+<h1>Daftar Building Access</h1>
+
+<p>Gunakan halaman ini untuk melihat info Building Access.</p>
+
+@if (DataAccessBuilding == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <body onbeforeunload="TestDataTablesRemove('#gridData')">
+        <div class="table-responsive">
+            <table id="gridData" name="gridData" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Nama</th>
+                        <th>Verifikasi</th>
+                        <th>CCTV</th>
+                        <th>Pic</th>
+                       
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    @foreach (var item in DataAccessBuilding)
+                    {
+                        <tr>
+
+                            <td>@item.CreatedDate.ToString("dd/MMM/yyyy HH:mm")</td>
+                            <td>@item.Nama</td>
+                            <td>@(item.IsVerified?"Ya":"Tidak")</td>
+                            <td>@item.CCTV</td>
+                            <td>@item.FileUrl</td>
+                           
+                            <td>
+                                @if (HasLogin)
+                                {
+                                    <input type="button" class="btn btn-primary btn-sm mt-1" @onclick="(() => PrepareForEdit(item))" data-toggle="modal" data-target="#taskModal" value="Ubah" />
+                                    <input type="button" class="btn btn-danger btn-sm mt-1" @onclick="(() => PrepareForDelete(item))" data-toggle="modal" data-target="#confirmDeleteModal" value="Hapus" />
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </body>
+}
+@if (HasLogin)
+{
+    <div>
+        <input type="button" data-toggle="modal" data-target="#taskModal" class="btn btn-primary" value="Masukan AccessBuilding Baru" @onclick="(() => InitializeitemObject())" />
+    </div>
+}
+<ConfirmDialog OnClick="@Delete" />
+<AccessBuildingDetail @ref="detail" TaskObject=@itemObject DataChanged="@DataChanged">
+    <CustomHeader>@customHeader</CustomHeader>
+</AccessBuildingDetail>
+
+@code {
+    bool HasLogin = false;
+    AccessBuildingDetail detail;
+    SmartBuilding.Web.Data.AccessBuildingService service;
+    string customHeader = string.Empty;
+    List<AccessBuilding> DataAccessBuilding;
+    AccessBuilding itemObject = new AccessBuilding();
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    string UserName;
+
+    async Task DownloadFile(string Url)
+    {
+        if (!string.IsNullOrEmpty(Url))
+        {
+            NavMgr.NavigateTo(Url, true);
+        }
+        else
+        {
+            toastService.ShowError("Url kosong atau tidak valid.");
+        }
+
+    }
+
+
+    SmartBuilding.Web.Data.UserProfileService Userservice;
+    protected override async Task OnInitializedAsync()
+    {
+
+        if (Userservice == null) Userservice = new UserProfileService();
+        var user = (await authenticationStateTask).User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            UserName = user.Identity.Name;
+            HasLogin = Userservice.GetUserRole(UserName) == Roles.Admin;
+        }
+
+        if (service == null) service = new AccessBuildingService();
+
+        DataAccessBuilding = service.GetAllData();
+
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DataAccessBuilding != null && DataAccessBuilding.Count > 0)
+        {
+
+            await jsRuntime.InvokeAsync<object>("TestDataTablesAdd", "#gridData");
+        }
+        if (firstRender)
+        {
+
+        }
+    }
+
+    private void InitializeitemObject()
+    {
+
+        itemObject = new AccessBuilding();
+
+
+        //detail.DocumentUrl = "";
+
+        //itemObject.Id = -1;
+
+        customHeader = "Masukan Access Building Baru";
+    }
+    private async void DataChanged()
+    {
+        DataAccessBuilding = service.GetAllData();
+        StateHasChanged();
+    }
+
+    private void PrepareForEdit(AccessBuilding item)
+    {
+        customHeader = "Ubah Data AccessBuilding";
+        itemObject = item;
+        //detail.DocumentUrl = item.DocumentUrl;
+    }
+    private void PrepareForDelete(AccessBuilding item)
+    {
+        itemObject = item;
+    }
+    private async Task Delete()
+    {
+        var task = service.DeleteData(itemObject.Id);
+        await jsRuntime.InvokeAsync<object>("CloseModal", "confirmDeleteModal");
+        DataAccessBuilding = service.GetAllData();
+        itemObject = new AccessBuilding() { Id = -1 };
+    }
+
+    private async System.Threading.Tasks.Task applyPager(string TableName)
+    {
+        await jsRuntime.InvokeAsync<object>("applyPager", TableName);
+    }
+
+}

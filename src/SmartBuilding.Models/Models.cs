@@ -16,10 +16,16 @@ namespace SmartBuilding.Models
         public string Filter { get; set; } = null;
     }
 
-  
+    public class CCTVImage
+    {
+        public string CctvName { get; set; }
+        public byte[] ImageBytes { get; set; }
+        public DateTime CreatedDate { get; set; }
+    }
     public class FaceTemp
     {
         public string nama { get; set; }
+        public object box { set; get; }
         public string url { get; set; }
     }
   
@@ -161,6 +167,29 @@ namespace SmartBuilding.Models
     }
     #endregion
     #region database
+
+
+    [DataContract]
+
+    [Table("access_building")]
+    public class AccessBuilding
+    {
+        [DataMember(Order = 1)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key, Column(Order = 0)]
+        public long Id { get; set; }
+        [DataMember(Order = 2)]
+        public string Nama { get; set; }
+        [DataMember(Order = 3)]
+        public string FileUrl { get; set; }  
+        [DataMember(Order = 4)]
+        public string CCTV { get; set; }
+        [DataMember(Order = 5)]
+        public bool IsVerified { get; set; } = false;
+        [DataMember(Order = 6)]
+        public DateTime CreatedDate { get; set; }
+    }
+
     [DataContract]
 
     [Table("face")]
