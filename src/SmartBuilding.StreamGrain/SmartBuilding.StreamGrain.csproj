@@ -28,4 +28,9 @@
 		<ProjectReference Include="..\SmartBuilding.Models\SmartBuilding.Models.csproj" />
 		<ProjectReference Include="..\SmartBuilding.Tools\SmartBuilding.Tools.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <None Update="config.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 </Project>

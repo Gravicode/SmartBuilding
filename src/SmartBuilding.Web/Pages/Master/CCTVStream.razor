@@ -18,7 +18,7 @@
 </style>
 <h1>CCTV Monitoring</h1>
 
-<p>Gunakan ini untuk monitoring CCTV People Counter.</p>
+<p>Gunakan ini untuk monitoring pengenalan wajah dengan CCTV.</p>
 
 
 <div class="row">
@@ -38,7 +38,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">LIVE</h5>
-                        <img id="@($"originalImg{count}")" style="width: 320px; height: 240px;object-fit: cover;" src="@(cctv+"&rand="+rnd.Next(100))" alt="foto" />
+                        <img id="@($"originalImg{count}")" style="width: 320px; height: 240px;object-fit: cover;" src="@(cctv+$"&rnd={rnd.Next(1000)}")" alt="foto" />
                         <canvas id="@($"reflay{count}")" class="overlay"></canvas>
                         <p hidden> @(count++)</p>
                     </div>
@@ -60,30 +60,53 @@
     BlazorTimer timer;
     string UserName;
     bool HasLogin;
-    DateTime LastUpdate;
+    DateTime LastUpdate,LastInsert;
     string[] CCTVUrls;
     string[] CCTVItemUrls;
+    string[] CCTVName;
+    List<string> CctvData = new();
     List<FaceTemp> faces = new();
     protected override async Task OnInitializedAsync()
     {
+        LastUpdate = DateHelper.GetLocalTimeNow();
+        LastInsert = DateHelper.GetLocalTimeNow();
         client = new();
+        CCTVName = new string[] { "cctv-1" };
         CCTVUrls = new string[] { NavMgr.BaseUri + "api/cctv/getimage?key=cctv-1" };
         CCTVItemUrls = new string[] { NavMgr.BaseUri + "api/cctv/getitem?key=cctv-1" };
         timer = new BlazorTimer();
         timer.SetTimer(3000);
         timer.OnElapsed += () =>
         {
-
+            bool Update = false;
             InvokeAsync(async () =>
             {
-                var item = await client.GetJsonAsync<CCTVImage>(CCTVItemUrls[0]);
-                if (item != null && item.CreatedDate != LastUpdate)
+                CctvData.Clear();
+                foreach(var url in CCTVItemUrls)
                 {
-                    LastUpdate = item.CreatedDate;
+                    var item = await client.GetJsonAsync<CCTVImage>(url);
+                    if (item != null && item.CreatedDate > LastUpdate)
+                    {
+                        Update = true;
+                        //var base64 = Convert.ToBase64String(item.ImageBytes);
+                        //var imgSrc = String.Format("data:image/jpg;base64,{0}", base64);
+                        //CctvData.Add(imgSrc);
+                        LastUpdate = item.CreatedDate;
+
+                    }
+
+                }
+                if (Update)
+                {
                     // Update the UI
                     StateHasChanged();
-                    await CallFaceRecognition();
+                    var ts = DateHelper.GetLocalTimeNow() - LastInsert;
+                    if (ts.TotalSeconds > 5)
+                    {
+                        await CallFaceRecognition();
+                    }
                 }
+
             });
         };
 
@@ -93,17 +116,26 @@
 
     async Task CallFaceRecognition()
     {
-        var detected = await IJS.InvokeAsync<List<FaceTemp>>("detect_face", faces, "originalImg1", "reflay1");
-        if (detected != null && detected?.Count > 0)
+        bool Inserted = false;
+        for (var i = 1; i <= CCTVName.Length; i++)
         {
-            foreach (var item in detected)
+            var detected = await IJS.InvokeAsync<List<FaceTemp>>("detect_face", faces, $"originalImg{i}", $"reflay{i}");
+            if (detected != null && detected?.Count > 0)
             {
-                var newItem = new AccessBuilding() { CCTV = "cctv-1", CreatedDate = DateHelper.GetLocalTimeNow(), FileUrl = item.url, IsVerified = item.nama.Contains("unknown") ? false : true, Nama = item.nama };
-                var res = AccessSvc.InsertData(newItem);
-                if (res)
-                    toastService.ShowSuccess("face detected");
+                foreach (var item in detected)
+                {
+                    var newItem = new AccessBuilding() { CCTV = CCTVName[i-1], CreatedDate = DateHelper.GetLocalTimeNow(), FileUrl = item.url, IsVerified = item.nama.Contains("unknown") ? false : true, Nama = item.nama };
+                    var res = AccessSvc.InsertData(newItem);
+                    if (res)
+                    {
+                        toastService.ShowSuccess($"face detected -> {newItem.Nama}");
+                        Inserted = true;
+                    }
+
+                }
             }
         }
+        if (Inserted) LastInsert = DateHelper.GetLocalTimeNow();
     }
     protected override void OnInitialized()
     {

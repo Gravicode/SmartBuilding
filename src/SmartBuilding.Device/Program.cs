@@ -1,11 +1,14 @@
-﻿using GHIElectronics.TinyCLR.Devices.Gpio;
+﻿using GHIElectronics.TinyCLR.Devices.Display;
+using GHIElectronics.TinyCLR.Devices.Gpio;
 using GHIElectronics.TinyCLR.Devices.Modbus;
 using GHIElectronics.TinyCLR.Devices.Modbus.Interface;
 using GHIElectronics.TinyCLR.Devices.Network;
 using GHIElectronics.TinyCLR.Pins;
+using SmartBuilding.Device.Properties;
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Drawing;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -16,6 +19,68 @@ namespace SmartBuilding.Device
     {
         static void Main()
         {
+
+            GpioPin backlight = GpioController.GetDefault().OpenPin(SC20260.GpioPin.PA15);
+            backlight.SetDriveMode(GpioPinDriveMode.Output);
+            backlight.Write(GpioPinValue.High);
+
+            var displayController = DisplayController.GetDefault();
+
+            // Enter the proper display configurations
+            displayController.SetConfiguration(new ParallelDisplayControllerSettings
+            {
+                Width = 480,
+                Height = 272,
+                DataFormat = DisplayDataFormat.Rgb565,
+                Orientation = DisplayOrientation.Degrees0, //Rotate display.
+                PixelClockRate = 10000000,
+                PixelPolarity = false,
+                DataEnablePolarity = false,
+                DataEnableIsFixed = false,
+                HorizontalFrontPorch = 2,
+                HorizontalBackPorch = 2,
+                HorizontalSyncPulseWidth = 41,
+                HorizontalSyncPolarity = false,
+                VerticalFrontPorch = 2,
+                VerticalBackPorch = 2,
+                VerticalSyncPulseWidth = 10,
+                VerticalSyncPolarity = false,
+            });
+
+            displayController.Enable(); //This line turns on the display I/O and starts
+                                        //  refreshing the display. Native displays are
+                                        //  continually refreshed automatically after this
+                                        //  command is executed.
+
+            var screen = Graphics.FromHdc(displayController.Hdc);
+
+            //var image = Resources.GetBitmap(Resources.BitmapResources.smallJpegBackground);
+            var font = Resources.GetFont(Resources.FontResources.NinaB);
+
+            screen.Clear();
+
+            screen.FillEllipse(new SolidBrush(System.Drawing.Color.FromArgb
+                (255, 255, 0, 0)), 0, 0, 240, 136);
+
+            screen.FillEllipse(new SolidBrush(System.Drawing.Color.FromArgb
+                (255, 0, 0, 255)), 240, 0, 240, 136);
+
+            screen.FillEllipse(new SolidBrush(System.Drawing.Color.FromArgb
+                (128, 0, 255, 0)), 120, 0, 240, 136);
+
+            //screen.DrawImage(image, 216, 122);
+
+            screen.DrawRectangle(new Pen(Color.Yellow), 10, 150, 140, 100);
+            screen.DrawEllipse(new Pen(Color.Purple), 170, 150, 140, 100);
+            screen.FillRectangle(new SolidBrush(Color.Teal), 330, 150, 140, 100);
+
+            screen.DrawLine(new Pen(Color.White), 10, 271, 470, 271);
+            screen.SetPixel(240, 200, Color.White);
+
+            screen.DrawString("Hello world!", font, new SolidBrush(Color.Blue), 210, 255);
+
+            screen.Flush();
+
             StartEthernet();
             ModbusDevice ModbusTCP_Device;
             ModbusTCP_Device = new ModbusClient(248);
