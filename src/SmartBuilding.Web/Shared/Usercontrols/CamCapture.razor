@@ -1,0 +1,110 @@
+﻿@inject IJSRuntime JSRuntime
+@inject IToastService toastService
+@inject FaceService FaceSvc
+@using System.IO
+@inject AzureBlobHelper blob;
+
+
+<div class="row">
+    <div class="col-6">
+        <canvas id="@options.CanvasID"
+                style="background-color:lightgray;"
+                width="@options.Width"
+                height="@HeightPic">
+        </canvas>
+    </div>
+    <div class="col-6">
+        <img id="@ImageId" />
+    </div>
+</div>
+<div class="row">
+    <div class="form-group">
+        <label for="username">Nama</label>
+        <input class="form-control" type="text" id="username" @bind="Username" />
+    </div>
+</div>
+<div>
+    <button class="btn btn-success mt-1" @onclick="Start">Mulai Camera</button>
+    <button class="btn btn-info mt-1" @onclick="Capture">Ambil Foto</button>
+</div>
+<div style="display:none;">
+    <video id="@options.VideoID"
+           style="background-color:lightblue; visibility:hidden;"
+           width="@options.Width">
+        Video stream tidak tersedia.
+    </video>
+
+</div>
+@code {
+    [Parameter]
+    public string Username { set; get; }
+
+    const int HeightPic = AppConstants.FACE_HEIGHT;//60;
+    const int WidthPic = AppConstants.FACE_WIDTH;// 80;
+    [Parameter]
+    public Action DataChanged { get; set; }
+    string ImageId = "imgcam1";
+    bool IsCamStarting = false;
+    WebCamOptions options = new WebCamOptions()
+        {
+            CanvasID = "canvas1",
+            VideoID = "video1"
+        };
+    protected override void OnInitialized()
+    {
+        options.Filter =
+            "contrast(1.4)";
+        options.Width = WidthPic;
+    }
+    public async Task Start()
+    {
+        await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
+        IsCamStarting = true;
+    }
+    public async Task Capture()
+    {
+        if (!IsCamStarting)
+        {
+            toastService.ShowInfo("start camera dulu.");
+            return;
+        }
+        if (string.IsNullOrEmpty(Username))
+        {
+            toastService.ShowWarning("Isi nama dulu.");
+            return;
+        }
+        var img64 = await JSRuntime.InvokeAsync<string>("CaptureCanvas", options.CanvasID, ImageId);
+        byte[] datas = System.Convert.FromBase64String(img64);
+        if (datas != null)
+        {
+            RandomGenerator gen = new RandomGenerator();
+            // Just load into .NET memory to show it can be done
+            // Alternatively it could be saved to disk, or parsed in memory, or similar
+            //var result = await faceService.UploadAndDetectFaces(datas);
+
+            var ms = new MemoryStream(datas);
+            //result.img.Save(ms,result.img.RawFormat);
+
+            //end of detection
+            var bytes = SKiaImageHelper.FixedSize(ms, WidthPic, HeightPic, false);
+            string newName = $"capture_{DateTime.Now.ToString("dd_MM_yyyy")}_{gen.RandomNumber(5)}.png";
+            //var bytes = ms.ToArray();
+            ms.Dispose();
+            var FileUrl = $"{AppConstants.UploadUrlPrefix}{newName}";
+            await blob.UploadFile(newName, bytes);
+            var newItem = new Face() { Nama = Username, CreatedDate = DateTime.Now, FileUrl = FileUrl, FileUrl2 = $"/dms/{newName}" };
+            var res = FaceSvc.InsertData(newItem);
+            if (res)
+            {
+                toastService.ShowSuccess("data inserted");
+                DataChanged?.Invoke();
+            }
+            else
+                toastService.ShowSuccess("data failed to insert");
+
+        }
+    }
+
+
+
+}

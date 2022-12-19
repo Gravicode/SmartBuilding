@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "SmartBuilding.Tools": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:52674;http://localhost:52677"
+    }
+  }
+}
