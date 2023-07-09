@@ -40,13 +40,14 @@
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(489, 388);
+            this.pictureBox1.Size = new System.Drawing.Size(500, 375);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
             // BtnStart
             // 
-            this.BtnStart.Location = new System.Drawing.Point(507, 12);
+            this.BtnStart.Location = new System.Drawing.Point(356, 393);
             this.BtnStart.Name = "BtnStart";
             this.BtnStart.Size = new System.Drawing.Size(75, 23);
             this.BtnStart.TabIndex = 1;
@@ -56,7 +57,7 @@
             // ChkPush
             // 
             this.ChkPush.AutoSize = true;
-            this.ChkPush.Location = new System.Drawing.Point(12, 406);
+            this.ChkPush.Location = new System.Drawing.Point(12, 393);
             this.ChkPush.Name = "ChkPush";
             this.ChkPush.Size = new System.Drawing.Size(101, 19);
             this.ChkPush.TabIndex = 2;
@@ -66,7 +67,7 @@
             // BtnStop
             // 
             this.BtnStop.Enabled = false;
-            this.BtnStop.Location = new System.Drawing.Point(588, 12);
+            this.BtnStop.Location = new System.Drawing.Point(437, 393);
             this.BtnStop.Name = "BtnStop";
             this.BtnStop.Size = new System.Drawing.Size(75, 23);
             this.BtnStop.TabIndex = 3;
@@ -77,7 +78,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(525, 433);
             this.Controls.Add(this.BtnStop);
             this.Controls.Add(this.ChkPush);
             this.Controls.Add(this.BtnStart);

@@ -3,7 +3,7 @@
 @inject FaceService FaceSvc
 @using System.IO
 @inject AzureBlobHelper blob;
-
+@implements IDisposable
 
 <div class="row">
     <div class="col-6">
@@ -24,8 +24,12 @@
     </div>
 </div>
 <div>
-    <button class="btn btn-success mt-1" @onclick="Start">Mulai Camera</button>
-    <button class="btn btn-info mt-1" @onclick="Capture">Ambil Foto</button>
+    <button class="btn btn-success mt-1 mr-2" @onclick="Start">Mulai Camera</button>  
+    @if (IsCamStarting)
+    {
+        <button class="btn btn-danger mt-1 mr-2" @onclick="Stop">Stop Camera</button>
+    }
+    <button class="btn btn-info mt-1 mr-2" @onclick="Capture">Ambil Foto</button>
 </div>
 <div style="display:none;">
     <video id="@options.VideoID"
@@ -60,6 +64,19 @@
     {
         await JSRuntime.InvokeVoidAsync("WebCamFunctions.start", options);
         IsCamStarting = true;
+    } 
+    public async Task Stop()
+    {
+        if (IsCamStarting)
+        {
+            await JSRuntime.InvokeVoidAsync("WebCamFunctions.stop", options);
+            IsCamStarting = false;
+        }
+    }
+    public async void Dispose()
+    {
+        if (IsCamStarting)
+            await Stop();
     }
     public async Task Capture()
     {

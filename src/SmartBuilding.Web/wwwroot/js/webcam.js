@@ -2,7 +2,7 @@
 let canvas = null;
 let context = null;
 let streaming = false;
-
+let stream = null;
 let width = 100;    // We will scale the photo width to this.
 let height = 0;     // This will be computed based on the input stream
 let filter = 'sepia(1)';
@@ -15,8 +15,9 @@ function onStart(options) {
     filter = options.filter;
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        .then(function (stream) {
-            video.srcObject = stream;
+        .then(function (stream1) {
+            stream = stream1;
+            video.srcObject = stream1;
             video.play();
         })
         .catch(function (err) {
@@ -44,6 +45,38 @@ function onStart(options) {
         timercallback();
     }, false);
 }
+// stop both mic and camera
+function stopBothVideoAndAudio(stream) {
+    stream.getTracks().forEach((track) => {
+        if (track.readyState == 'live') {
+            track.stop();
+        }
+    });
+}
+
+// stop only camera
+function stopVideoOnly(stream) {
+    stream.getTracks().forEach((track) => {
+        if (track.readyState == 'live' && track.kind === 'video') {
+            track.stop();
+        }
+    });
+}
+
+// stop only mic
+function stopAudioOnly(stream) {
+    stream.getTracks().forEach((track) => {
+        if (track.readyState == 'live' && track.kind === 'audio') {
+            track.stop();
+        }
+    });
+}
+function onStop() {
+    if (stream) {
+        stopBothVideoAndAudio(stream);
+        streaming = false;
+    }
+}
 
 function timercallback() {
     if (video.paused || video.ended) {
@@ -61,7 +94,8 @@ function computeFrame() {
 }
 
 window.WebCamFunctions = {
-    start: (options) => { onStart(options); }
+    start: (options) => { onStart(options); },
+    stop: () => { onStop(); }
 };
 
 
